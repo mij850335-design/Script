@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mostrar e copiar script</title>
+  <style>
+    :root{
+      --bg:#0f1720;
+      --card:#0b1220;
+      --accent:#06b6d4;
+      --muted:#94a3b8;
+      --white:#e6eef6;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:linear-gradient(180deg,#071021 0%, #0b1220 100%);
+      color:var(--white);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .page{
+      width:100%;
+      max-width:900px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.03);
+      padding:28px;
+      border-radius:12px;
+      box-shadow:0 6px 30px rgba(2,6,23,0.6);
+    }
+
+    h1{margin:0 0 8px 0;font-size:20px}
+    .instructions{color:var(--muted);margin-top:0;margin-bottom:18px}
+
+    .primary{
+      background:linear-gradient(90deg,var(--accent), #0ea5a5);
+      color:#02121a;
+      border:none;
+      padding:10px 16px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow:0 6px 18px rgba(3,7,18,0.6);
+    }
+
+    .primary:active{transform:translateY(1px)}
+
+    .script-area{
+      margin-top:18px;
+      padding:16px;
+      background:rgba(255,255,255,0.02);
+      border-radius:10px;
+      position:relative;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.02);
+    }
+
+    .hidden{display:none}
+
+    .script-wrapper{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      position:relative;
+    }
+
+    /* code block */
+    .script-block{
+      margin:0;
+      padding:16px;
+      background:linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.4));
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,0.02);
+      color:var(--white);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+      font-size:14px;
+      white-space:pre-wrap;
+      word-break:break-all;
+      flex:1 1 auto;
+      min-height:56px;
+      line-height:1.4;
+    }
+
+    /* copy button (to the side) */
+    .copy-btn{
+      min-width:84px;
+      padding:8px 10px;
+      background:rgba(255,255,255,0.03);
+      color:var(--white);
+      border:1px solid rgba(255,255,255,0.04);
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+      align-self:flex-start;
+      position:relative;
+    }
+
+    .copy-btn .feedback{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin-top:6px;
+    }
+
+    /* small note */
+    .note{display:block;margin-top:10px;color:var(--muted)}
+
+    .footer{margin-top:18px;color:var(--muted);font-size:13px}
+
+    @media (min-width:700px){
+      .script-wrapper{flex-direction:row}
+    }
+    @media (max-width:699px){
+      .script-wrapper{flex-direction:column}
+      .copy-btn{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1>Script pronto para copiar</h1>
+
+    <p class="instructions">
+      Clique no botão abaixo para mostrar o script. Um botão ficará ao lado para copiar o script para a área de transferência.
+    </p>
+
+    <button id="revealBtn" class="primary">Mostrar script</button>
+
+    <section id="scriptArea" class="script-area hidden" aria-hidden="true">
+      <div class="script-wrapper">
+        <pre id="scriptBlock" class="script-block" aria-label="Script de exemplo"></pre>
+        <button id="copyBtn" class="copy-btn" aria-label="Copiar script">
+          Copiar
+          <span id="copyFeedback" class="feedback" aria-hidden="true"></span>
+        </button>
+      </div>
+      <small class="note">O script exato é: <code>loadstring(game:HttpGet("https://pastefy.app/TyjUKSW0/raw"))()</code></small>
+    </section>
+
+    <footer class="footer">
+      <small>Feito para você — clique para mostrar e copiar.</small>
+    </footer>
+  </main>
+
+  <script>
+    // Texto exato do script solicitado
+    const scriptText = 'loadstring(game:HttpGet("https://pastefy.app/TyjUKSW0/raw"))()';
+
+    // Elementos
+    const revealBtn = document.getElementById('revealBtn');
+    const scriptArea = document.getElementById('scriptArea');
+    const scriptBlock = document.getElementById('scriptBlock');
+    const copyBtn = document.getElementById('copyBtn');
+    const copyFeedback = document.getElementById('copyFeedback');
+
+    function showScriptArea() {
+      // Preenche o bloco de código com segurança (textContent preserva o texto)
+      scriptBlock.textContent = scriptText;
+      scriptArea.classList.remove('hidden');
+      scriptArea.setAttribute('aria-hidden','false');
+      revealBtn.disabled = true;
+      revealBtn.textContent = 'Script mostrado';
+    }
+
+    async function copyToClipboard(text) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          // Fallback para navegadores antigos
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          // Evita alterar layout
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+        }
+        return true;
+      } catch (err) {
+        console.error('Erro ao copiar:', err);
+        return false;
+      }
+    }
+
+    revealBtn.addEventListener('click', () => {
+      showScriptArea();
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      const ok = await copyToClipboard(scriptText);
+      if (ok) {
+        copyFeedback.textContent = 'Copiado!';
+        // limpa feedback depois de 1.6s
+        setTimeout(() => (copyFeedback.textContent = ''), 1600);
+      } else {
+        copyFeedback.textContent = 'Falha ao copiar';
+        setTimeout(() => (copyFeedback.textContent = ''), 1800);
+      }
+    });
+
+    // Acessibilidade: permitir mostrar com Enter/Space quando o botão estiver focado
+    revealBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        showScriptArea();
+      }
+    });
+  </script>
+</body>
+</html>
